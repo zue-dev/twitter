@@ -1,13 +1,20 @@
 import React from 'react';
-import { HashRouter as Router, Route, Switch } from 'react-router-dom';
+import {
+	HashRouter as Router,
+	Route,
+	Switch,
+	Redirect
+} from 'react-router-dom';
 import Auth from 'routes/Auth';
 import Home from 'routes/Home';
 import Profile from 'routes/Profile';
 import EditProfile from 'routes/EditProfile';
+import Navigation from 'components/Navigation';
 
 export default ({ isLoggedIn }) => {
 	return (
 		<Router>
+			{isLoggedIn && <Navigation />}
 			<Switch>
 				{isLoggedIn ? (
 					<>
@@ -20,11 +27,15 @@ export default ({ isLoggedIn }) => {
 						<Route path="/edit-profile">
 							<EditProfile />
 						</Route>
+						<Redirect from="*" to="/" />
 					</>
 				) : (
-					<Route exact path="/">
-						<Auth />
-					</Route>
+					<>
+						<Route exact path="/">
+							<Auth />
+						</Route>
+						<Redirect from="*" to="/" />
+					</>
 				)}
 			</Switch>
 		</Router>
