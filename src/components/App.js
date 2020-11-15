@@ -4,14 +4,12 @@ import { authService } from 'firebaseInstance';
 
 function App() {
 	const [init, setInit] = useState(false);
-	const [isLoggedIn, setLoggedIn] = useState(false);
+	const [userObj, setUserObj] = useState(null);
 
 	useEffect(() => {
 		authService.onAuthStateChanged(user => {
 			if (user) {
-				setLoggedIn(true);
-			} else {
-				setLoggedIn(false);
+				setUserObj(user);
 			}
 			setInit(true);
 		});
@@ -19,7 +17,11 @@ function App() {
 
 	return (
 		<>
-			{init ? <AppRouter isLoggedIn={isLoggedIn} /> : 'Initializing...'}
+			{init ? (
+				<AppRouter isLoggedIn={Boolean(userObj)} userObj={userObj} />
+			) : (
+				'Initializing...'
+			)}
 			<footer>&copy;Twitter {new Date().getFullYear()}</footer>
 		</>
 	);

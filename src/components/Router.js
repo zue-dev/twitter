@@ -11,7 +11,7 @@ import Profile from 'routes/Profile';
 import EditProfile from 'routes/EditProfile';
 import Navigation from 'components/Navigation';
 
-export default ({ isLoggedIn }) => {
+export default ({ isLoggedIn, userObj }) => {
 	return (
 		<Router>
 			{isLoggedIn && <Navigation />}
@@ -19,7 +19,7 @@ export default ({ isLoggedIn }) => {
 				{isLoggedIn ? (
 					<>
 						<Route exact path="/">
-							<Home />
+							<Home userObj={userObj} />
 						</Route>
 						<Route path="/profile">
 							<Profile />
