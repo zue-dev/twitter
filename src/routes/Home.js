@@ -5,6 +5,7 @@ import Tweet from 'components/Tweet';
 function Home({ userObj }) {
 	const [tweet, setTweet] = useState('');
 	const [tweets, setTweets] = useState([]);
+	const [attachment, setAttachment] = useState();
 
 	useEffect(() => {
 		dbService.collection('tweets').onSnapshot(snapshot => {
@@ -35,6 +36,23 @@ function Home({ userObj }) {
 		setTweet(value);
 	};
 
+	const onFileChange = e => {
+		const {
+			target: { files }
+		} = e;
+		const theFile = files[0];
+		const reader = new FileReader();
+		reader.onloadend = function (finishedEvent) {
+			const {
+				currentTarget: { result }
+			} = finishedEvent;
+			setAttachment(result);
+		};
+		reader.readAsDataURL(theFile);
+	};
+
+	const onClearAttachment = () => setAttachment(null);
+
 	const handleDeleteClick = async id => {
 		try {
 			await dbService.doc(`tweets/${id}`).delete();
@@ -63,7 +81,14 @@ function Home({ userObj }) {
 					onChange={onChange}
 					value={tweet}
 				/>
+				<input type="file" accept="image/*" onChange={onFileChange} />
 				<input type="submit" value="Tweet" />
+				{attachment && (
+					<div>
+						<img src={attachment} alt="attachment" width="50px" height="50px" />
+						<button onClick={onClearAttachment}>Clear</button>
+					</div>
+				)}
 			</form>
 			<div>
 				{tweets.map(tweet => (
