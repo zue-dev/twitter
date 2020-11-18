@@ -7,7 +7,7 @@ function Tweet({ tweetObj, isOwner, onDeleteClick, onSubmitClick }) {
 	const handleDeleteClick = () => {
 		const ok = window.confirm('Are you sure?');
 		if (ok) {
-			onDeleteClick();
+			onDeleteClick(tweetObj.attachmentUrl);
 		} else {
 			return null;
 		}
@@ -46,6 +46,14 @@ function Tweet({ tweetObj, isOwner, onDeleteClick, onSubmitClick }) {
 			) : (
 				<div>
 					<h4>{tweetObj.text}</h4>
+					{tweetObj.attachmentUrl && (
+						<img
+							src={tweetObj.attachmentUrl}
+							alt="tweet attachment"
+							width="50px"
+							height="50px"
+						/>
+					)}
 					{isOwner && (
 						<>
 							<button onClick={handleDeleteClick}>Delete</button>

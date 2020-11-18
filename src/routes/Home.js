@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { dbService } from 'firebaseInstance';
+import { dbService, storageService } from 'firebaseInstance';
+import { v4 as uuidv4 } from 'uuid';
+
 import Tweet from 'components/Tweet';
+import TweetFactory from 'components/TweetFactory';
 
 function Home({ userObj }) {
 	const [tweet, setTweet] = useState('');
 	const [tweets, setTweets] = useState([]);
-	const [attachment, setAttachment] = useState();
+	const [attachment, setAttachment] = useState('');
 
 	useEffect(() => {
 		dbService.collection('tweets').onSnapshot(snapshot => {
 			const tweetArray = snapshot.docs.map(doc => ({
-				id: doc.id,
-				...doc.data()
+				...doc.data(),
+				id: doc.id
 			}));
 			setTweets(tweetArray);
 		});
@@ -19,11 +22,28 @@ function Home({ userObj }) {
 
 	const onSubmit = async e => {
 		e.preventDefault();
+		let attachmentUrl = '';
+
+		if (attachment !== '') {
+			const attachmentRef = storageService
+				.ref()
+				.child(`${userObj.uid}/${uuidv4()}`);
+			const response = await attachmentRef.putString(attachment, 'data_url');
+			attachmentUrl = await response.ref.getDownloadURL();
+		}
+
+		const tweetObj = {
+			text: tweet,
+			createdAt: Date.now(),
+			creatorId: userObj.uid,
+			attachmentUrl
+		};
+
 		try {
-			await dbService
-				.collection('tweets')
-				.add({ text: tweet, createdAt: Date.now(), creatorId: userObj.uid });
+			await dbService.collection('tweets').add(tweetObj);
+
 			setTweet('');
+			setAttachment('');
 		} catch (err) {
 			console.log(err);
 		}
@@ -53,9 +73,10 @@ function Home({ userObj }) {
 
 	const onClearAttachment = () => setAttachment(null);
 
-	const handleDeleteClick = async id => {
+	const handleDeleteClick = async (id, url) => {
 		try {
 			await dbService.doc(`tweets/${id}`).delete();
+			await storageService.refFromURL(url).delete(); // image path
 		} catch (err) {
 			console.log(err);
 		}
@@ -71,32 +92,28 @@ function Home({ userObj }) {
 		}
 	};
 
+	const data = {
+		tweet,
+		attachment
+	};
+
+	const actions = {
+		onSubmit,
+		onChange,
+		onFileChange,
+		onClearAttachment
+	};
+
 	return (
 		<div>
-			<form onSubmit={onSubmit}>
-				<input
-					type="text"
-					placeholder="무슨 일이 일어나고 있나요?"
-					maxLength={120}
-					onChange={onChange}
-					value={tweet}
-				/>
-				<input type="file" accept="image/*" onChange={onFileChange} />
-				<input type="submit" value="Tweet" />
-				{attachment && (
-					<div>
-						<img src={attachment} alt="attachment" width="50px" height="50px" />
-						<button onClick={onClearAttachment}>Clear</button>
-					</div>
-				)}
-			</form>
+			<TweetFactory data={data} actions={actions} />
 			<div>
 				{tweets.map(tweet => (
 					<Tweet
 						key={tweet.id}
 						tweetObj={tweet}
 						isOwner={tweet.creatorId === userObj.uid}
-						onDeleteClick={() => handleDeleteClick(tweet.id)}
+						onDeleteClick={url => handleDeleteClick(tweet.id, url)}
 						onSubmitClick={newTweet => handleSubmitClick(tweet.id, newTweet)}
 					/>
 				))}

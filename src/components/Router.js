@@ -8,13 +8,12 @@ import {
 import Auth from 'routes/Auth';
 import Home from 'routes/Home';
 import Profile from 'routes/Profile';
-import EditProfile from 'routes/EditProfile';
 import Navigation from 'components/Navigation';
 
-export default ({ isLoggedIn, userObj }) => {
+export default ({ refreshUser, isLoggedIn, userObj }) => {
 	return (
 		<Router>
-			{isLoggedIn && <Navigation />}
+			{isLoggedIn && <Navigation userObj={userObj} refreshUser={refreshUser} />}
 			<Switch>
 				{isLoggedIn ? (
 					<>
@@ -22,10 +21,7 @@ export default ({ isLoggedIn, userObj }) => {
 							<Home userObj={userObj} />
 						</Route>
 						<Route path="/profile">
-							<Profile />
-						</Route>
-						<Route path="/edit-profile">
-							<EditProfile />
+							<Profile userObj={userObj} refreshUser={refreshUser} />
 						</Route>
 						<Redirect from="*" to="/" />
 					</>
