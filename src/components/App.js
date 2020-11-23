@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { authService } from 'firebaseInstance';
 import AppRouter from 'components/Router';
+import 'style.css';
 
 function App() {
 	const [init, setInit] = useState(false);
@@ -41,7 +42,6 @@ function App() {
 			) : (
 				'Initializing...'
 			)}
-			<footer>&copy;Twitter {new Date().getFullYear()}</footer>
 		</>
 	);
 }

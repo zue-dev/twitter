@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { authService, firebaseInstance } from 'firebaseInstance';
 import AuthForm from 'components/AuthForm';
+import styled from 'styled-components';
 
 function Auth() {
 	const [email, setEmail] = useState('');
@@ -54,16 +55,26 @@ function Auth() {
 	return (
 		<div>
 			<AuthForm data={authData} actions={authActions} />
-			<div>
+			<Buttons>
 				<button name="google" onClick={onSocialClick}>
 					Continue with Google
 				</button>
 				<button name="github" onClick={onSocialClick}>
 					Continue with Github
 				</button>
-			</div>
+			</Buttons>
 		</div>
 	);
 }
 
 export default Auth;
+
+const Buttons = styled.div`
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+	button {
+		margin-top: 8px;
+	}
+`;
